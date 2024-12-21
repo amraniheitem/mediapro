@@ -1,0 +1,29 @@
+name: mediapro
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  google_fonts: ^5.0.0
+  image_picker: ^0.8.4+4
+  cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.10+1
+  shared_preferences: ^2.0.15  # Vérifiez la dernière version sur pub.dev
+  video_player: ^2.6.0  
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/video/
