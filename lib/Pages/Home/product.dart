@@ -1,12 +1,36 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
+import 'package:mediapro/Pages/Animateur/animateur.dart';
 import 'package:mediapro/Pages/Home/ProductDetail.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mediapro/Pages/Home/home.dart';
+import 'package:mediapro/Pages/User/user.dart';
 // import '../home/product-detaille.dart'; // Import de l'écran d'inscription
 
-class HomeProduct extends StatelessWidget {
+class HomeProduct extends StatefulWidget {
   const HomeProduct({super.key});
+
+  @override
+  State<HomeProduct> createState() => _HomeProductState();
+}
+
+class _HomeProductState extends State<HomeProduct> {
+  int _selectedIndex = 0;
+
+  // List of widgets to display based on the selected index
+  final List<Widget> _widgetOptions = [
+    Home(),
+    Animateur(),
+    User(),
+  ];
+
+  // Handle bottom navigation bar item tap
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,60 +40,30 @@ class HomeProduct extends StatelessWidget {
       routes: {
         '/product-detaille': (context) => ProductDetailPage(),
       },
+
       home: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.only(
-            top: 20.0,
-            left: 5.0,
-            right: 5.0,
-            bottom: 1.0,
+          bottomNavigationBar: BottomNavigationBar(
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Accueil',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.mic),
+                label: 'Animateur',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Utilisateur',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            selectedItemColor: Color.fromARGB(255, 199, 68, 255),
+            unselectedItemColor: Colors.grey,
           ),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFB993D6), Color(0xFF8CA6DB)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(25.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  spreadRadius: 5,
-                  offset: Offset(0, 3),
-                ),
-              ],
-              border: Border.all(
-                width: 1.0,
-                color: Colors.white.withOpacity(0.4),
-              ),
-            ),
-            child: Center(
-              child: Container(
-                margin: EdgeInsets.all(0.0),
-                padding: EdgeInsets.all(8.0),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFD4A9FF), Color(0xFF80D1FF)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20.0),
-                  border: Border.all(
-                    width: 1.0,
-                    color: Colors.transparent,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 5,
-                      spreadRadius: 2,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
+          body: (_selectedIndex == 0)
+              ? ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
                   child: Scaffold(
                     appBar: AppBar(
@@ -310,12 +304,8 @@ class HomeProduct extends StatelessWidget {
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+                )
+              : _widgetOptions[_selectedIndex]),
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mediapro/Bottom/Component/card.dart';
+import 'package:mediapro/Bottom/bottombar.dart';
 import 'package:mediapro/Pages/Animateur/detaille.dart';
+import 'package:mediapro/Pages/Home/home.dart';
 
 class Animateur extends StatefulWidget {
   const Animateur({super.key});
@@ -100,7 +102,11 @@ class _AnimateurState extends State<Animateur> {
                       IconButton(
                         icon: const Icon(Icons.arrow_back, color: Colors.black),
                         onPressed: () {
-                          Navigator.pop(context); // Retour à la page précédente
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => BottomNavbar()),
+                          );
                         },
                       ),
                       PopupMenuButton<String>(
