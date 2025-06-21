@@ -1,12 +1,11 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapro/Pages/Animateur/animateur.dart';
 import 'package:mediapro/Pages/Home/ProductDetail.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mediapro/Pages/Home/home.dart';
 import 'package:mediapro/Pages/User/user.dart';
-// import '../home/product-detaille.dart'; // Import de l'écran d'inscription
 
 class HomeProduct extends StatefulWidget {
   const HomeProduct({super.key});
@@ -17,15 +16,19 @@ class HomeProduct extends StatefulWidget {
 
 class _HomeProductState extends State<HomeProduct> {
   int _selectedIndex = 0;
+  List<dynamic> _products = [];
+  List<dynamic> _categories = [];
+  String? _selectedCategoryId;
+  bool _isLoading = true;
+  bool _isCategoryLoading = true;
+  String _errorMessage = '';
 
-  // List of widgets to display based on the selected index
   final List<Widget> _widgetOptions = [
     Home(),
     Animateur(),
     User(),
   ];
 
-  // Handle bottom navigation bar item tap
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -33,35 +36,83 @@ class _HomeProductState extends State<HomeProduct> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+    _fetchProducts();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://back-end-of-mediapro-1.onrender.com/cateproduct/list'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _categories = json.decode(response.body);
+          _isCategoryLoading = false;
+        });
+      } else {
+        setState(() {
+          _isCategoryLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isCategoryLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchProducts({String? categoryId}) async {
+    setState(() {
+      _isLoading = true;
+      _selectedCategoryId = categoryId;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://back-end-of-mediapro-1.onrender.com/product/list'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> allProducts = json.decode(response.body);
+
+        // Filtrer les produits par catégorie si une catégorie est sélectionnée
+        List<dynamic> filteredProducts = categoryId != null
+            ? allProducts
+                .where((product) => product['category'] == categoryId)
+                .toList()
+            : allProducts;
+
+        setState(() {
+          _products = filteredProducts;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage =
+              'Erreur de chargement des produits: ${response.statusCode}';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Erreur réseau: $e';
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // Définition des routes ici
-      routes: {
-        '/product-detaille': (context) => ProductDetailPage(),
-      },
-
       home: Scaffold(
-          bottomNavigationBar: BottomNavigationBar(
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Accueil',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.mic),
-                label: 'Animateur',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Utilisateur',
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            onTap: _onItemTapped,
-            selectedItemColor: Color.fromARGB(255, 199, 68, 255),
-            unselectedItemColor: Colors.grey,
-          ),
           body: (_selectedIndex == 0)
               ? ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
@@ -69,9 +120,7 @@ class _HomeProductState extends State<HomeProduct> {
                     appBar: AppBar(
                       leading: IconButton(
                         icon: Icon(Icons.arrow_back, color: Colors.black),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                        onPressed: () => Navigator.pop(context),
                       ),
                       title: ShaderMask(
                         shaderCallback: (bounds) => LinearGradient(
@@ -104,17 +153,6 @@ class _HomeProductState extends State<HomeProduct> {
                     body: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: EdgeInsets.all(16.0),
-                          child: Text(
-                            'Salut',
-                            style: TextStyle(
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Row(
@@ -136,9 +174,7 @@ class _HomeProductState extends State<HomeProduct> {
                               IconButton(
                                 icon: Icon(Icons.search),
                                 iconSize: 30,
-                                onPressed: () {
-                                  // Action lors du clic sur l'icône de recherche
-                                },
+                                onPressed: () {},
                               ),
                             ],
                           ),
@@ -147,7 +183,7 @@ class _HomeProductState extends State<HomeProduct> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16.0, vertical: 16.0),
                           child: Text(
-                            'Sélectionnez un type de produit :',
+                            'Sélectionnez une catégorie :',
                             style: TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,
@@ -155,57 +191,59 @@ class _HomeProductState extends State<HomeProduct> {
                             ),
                           ),
                         ),
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0),
-                                child: Wrap(
-                                  spacing: 10.0,
-                                  children: [
-                                    ChoiceChip(
-                                      label: Text('Électronique'),
-                                      selected: false,
-                                      onSelected: (bool selected) {
-                                        // Action lors de la sélection de ce produit
+                        // Liste des catégories
+                        if (_isCategoryLoading)
+                          Center(child: CircularProgressIndicator())
+                        else
+                          SizedBox(
+                            height: 50,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount:
+                                  _categories.length + 1, // +1 pour "Tous"
+                              itemBuilder: (context, index) {
+                                if (index == 0) {
+                                  // Option "Tous"
+                                  return Padding(
+                                    padding: const EdgeInsets.only(left: 16.0),
+                                    child: ChoiceChip(
+                                      label: Text('Tous'),
+                                      selected: _selectedCategoryId == null,
+                                      onSelected: (selected) {
+                                        if (selected) {
+                                          _fetchProducts();
+                                        }
                                       },
                                     ),
-                                    ChoiceChip(
-                                      label: Text('Vêtements'),
-                                      selected: true,
-                                      onSelected: (bool selected) {
-                                        // Action lors de la sélection de ce produit
-                                      },
-                                    ),
-                                    ChoiceChip(
-                                      label: Text('Maison'),
-                                      selected: false,
-                                      onSelected: (bool selected) {
-                                        // Action lors de la sélection de ce produit
-                                      },
-                                    ),
-                                    ChoiceChip(
-                                      label: Text('Sports'),
-                                      selected: false,
-                                      onSelected: (bool selected) {
-                                        // Action lors de la sélection de ce produit
-                                      },
-                                    ),
-                                    ChoiceChip(
-                                      label: Text('Beauté'),
-                                      selected: false,
-                                      onSelected: (bool selected) {
-                                        // Action lors de la sélection de ce produit
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                                  );
+                                }
+
+                                final categoryIndex = index - 1;
+                                final category = _categories[categoryIndex];
+
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 8.0,
+                                      right: categoryIndex ==
+                                              _categories.length - 1
+                                          ? 16.0
+                                          : 0),
+                                  child: ChoiceChip(
+                                    label: Text(category['name'] ??
+                                        'Catégorie inconnue'),
+                                    selected:
+                                        _selectedCategoryId == category['_id'],
+                                    onSelected: (selected) {
+                                      if (selected) {
+                                        _fetchProducts(
+                                            categoryId: category['_id']);
+                                      }
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 16.0, vertical: 16.0),
@@ -219,86 +257,139 @@ class _HomeProductState extends State<HomeProduct> {
                           ),
                         ),
                         Expanded(
-                          child: GridView.builder(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 10.0,
-                              mainAxisSpacing: 10.0,
-                              childAspectRatio: 0.75,
-                            ),
-                            itemCount: products.length,
-                            itemBuilder: (context, index) {
-                              final product = products[index];
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/product-detaille',
-                                    arguments:
-                                        product, // Passing the product data
-                                  );
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(15.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 5,
-                                        spreadRadius: 2,
-                                        offset: Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(15.0),
-                                          child: Image.asset(
-                                            product['image']!,
-                                            fit: BoxFit.cover,
+                          child: _isLoading
+                              ? Center(child: CircularProgressIndicator())
+                              : _errorMessage.isNotEmpty
+                                  ? Center(child: Text(_errorMessage))
+                                  : _products.isEmpty
+                                      ? Center(
+                                          child:
+                                              Text('Aucun produit disponible'))
+                                      : GridView.builder(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 2,
+                                            crossAxisSpacing: 10.0,
+                                            mainAxisSpacing: 10.0,
+                                            childAspectRatio: 0.75,
                                           ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          children: [
-                                            Text(
-                                              product['name']!,
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16.0,
-                                              ),
-                                            ),
-                                            SizedBox(height: 5.0),
-                                            Center(
-                                              child: Text(
-                                                product['price']!,
-                                                style: TextStyle(
-                                                  color: Colors.green,
-                                                  fontSize: 14.0,
-                                                  fontWeight: FontWeight.bold,
+                                          itemCount: _products.length,
+                                          itemBuilder: (context, index) {
+                                            final product = _products[index];
+                                            final imageUrl = product[
+                                                        'images'] !=
+                                                    null
+                                                ? 'https://back-end-of-mediapro-1.onrender.com/uploads/product/${product['images']}'
+                                                : 'assets/images/placeholder.jpg';
+
+                                            return GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ProductDetailPage(
+                                                            productId:
+                                                                product['_id']),
+                                                  ),
+                                                );
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          15.0),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black
+                                                          .withOpacity(0.1),
+                                                      blurRadius: 5,
+                                                      spreadRadius: 2,
+                                                      offset: Offset(0, 3),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Expanded(
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(15.0),
+                                                        child:
+                                                            imageUrl.startsWith(
+                                                                    'http')
+                                                                ? Image.network(
+                                                                    imageUrl,
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    errorBuilder:
+                                                                        (context,
+                                                                            error,
+                                                                            stackTrace) {
+                                                                      return Image
+                                                                          .asset(
+                                                                        'assets/images/placeholder.jpg',
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                      );
+                                                                    },
+                                                                  )
+                                                                : Image.asset(
+                                                                    imageUrl,
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                  ),
+                                                      ),
+                                                    ),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Column(
+                                                        children: [
+                                                          Text(
+                                                            product['name'] ??
+                                                                'Nom inconnu',
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 16.0,
+                                                            ),
+                                                            maxLines: 1,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                          SizedBox(height: 5.0),
+                                                          Center(
+                                                            child: Text(
+                                                              '\$${product['price']?.toString() ?? '0.00'}',
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .green,
+                                                                fontSize: 14.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            );
+                                          },
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
                         ),
                         SizedBox(height: 18),
                       ],
@@ -309,27 +400,3 @@ class _HomeProductState extends State<HomeProduct> {
     );
   }
 }
-
-// Données d'exemple de produits
-final List<Map<String, String>> products = [
-  {
-    'name': 'Produit 1',
-    'price': '\$20.00',
-    'image': 'assets/images/product.jpg',
-  },
-  {
-    'name': 'Produit 2',
-    'price': '\$35.00',
-    'image': 'assets/images/product.jpg',
-  },
-  {
-    'name': 'Produit 3',
-    'price': '\$50.00',
-    'image': 'assets/images/product.jpg',
-  },
-  {
-    'name': 'Produit 4',
-    'price': '\$15.00',
-    'image': 'assets/images/product.jpg',
-  },
-];

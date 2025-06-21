@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:mediapro/Pages/Animateur/detaille.dart';
+import 'package:mediapro/Pages/Animateur/VIP/détaille.dart';
 
 class UserProfile extends StatelessWidget {
+  final String id;
   final String name;
   final String photoUrl;
   final String location;
-  final int rating; // Note sur 5
+  final int rating;
+  final int likes; // Note sur 5
+  final int events; // Note sur 5
+  final int numero; // Note sur 5
 
   const UserProfile({
     Key? key,
+    required this.id,
     required this.name,
     required this.photoUrl,
     required this.location,
     required this.rating,
+    required this.likes,
+    required this.events,
+    required this.numero,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 200, // Largeur fixe pour chaque profil
+      width: 250, // Largeur fixe pour chaque profil
       padding: EdgeInsets.all(8.0),
       margin: EdgeInsets.symmetric(horizontal: 8.0),
       decoration: BoxDecoration(
@@ -35,8 +43,11 @@ class UserProfile extends StatelessWidget {
       child: Column(
         children: <Widget>[
           CircleAvatar(
-            backgroundImage: AssetImage(photoUrl),
+            backgroundImage: photoUrl.startsWith('http')
+                ? NetworkImage(photoUrl)
+                : AssetImage(photoUrl) as ImageProvider,
             radius: 30,
+            backgroundColor: Colors.transparent,
           ),
           SizedBox(height: 8),
           Text(
@@ -64,10 +75,15 @@ class UserProfile extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => AnimateurDetaille(
                     animateur: {
-                      'name': name,
-                      'photoUrl': photoUrl,
-                      'location': location,
-                      'rating': rating,
+                      '_id': id,
+                      'nom':
+                          name, // Tu peux parser name en nom/prénom si nécessaire
+                      'photo_profil': photoUrl,
+                      'wilaya': location,
+                      'averageRating': rating,
+                      'nbrLike': likes,
+                      'event': events,
+                      'numero': numero,
                     },
                   ),
                 ),

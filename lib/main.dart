@@ -1,10 +1,11 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
 import 'package:mediapro/Bottom/bottombar.dart';
-import 'package:mediapro/Login/login.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Important !
+  await initializeDateFormatting('fr_FR', null); // Initialisation locale
+
   runApp(MyApp());
 }
 
@@ -14,10 +15,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Media Pro',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: Login(),
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: BottomNavbar(),
     );
   }
 }

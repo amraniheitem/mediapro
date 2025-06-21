@@ -71,20 +71,6 @@ class _BottomNavbarState extends State<BottomNavbar> {
                   },
                 ),
                 // Avatar utilisateur
-                Padding(
-                  padding: const EdgeInsets.only(right: 10.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context,
-                          '/profile'); // Navigation vers la route '/profile'
-                    },
-                    child: CircleAvatar(
-                      backgroundImage:
-                          AssetImage('assets/images/animateur.jpg'),
-                      radius: 20, // Taille du cercle
-                    ),
-                  ),
-                ),
               ],
               backgroundColor: Colors.transparent, // Fond transparent
               elevation: 0,

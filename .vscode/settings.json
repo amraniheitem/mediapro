@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Users/LENOVO/Desktop/Flutter app/mediapro/linux"
+    "cmake.sourceDirectory": "C:/Users/LENOVO/Desktop/Flutter app/mediapro/linux",
+    "idf.pythonInstallPath": "C:\\Espressif\\tools\\idf-python\\3.11.2\\python.exe"
 }

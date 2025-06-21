@@ -9,12 +9,8 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
-  final List<Map<String, dynamic>> notifications = [
+  List<Map<String, dynamic>> notifications = [
     {'title': 'Notification 1', 'isRead': false},
-    {'title': 'Notification 2', 'isRead': false},
-    {'title': 'Notification 3', 'isRead': false},
-    {'title': 'Notification 4', 'isRead': false},
-    {'title': 'Notification 5', 'isRead': false},
   ];
 
   @override
@@ -24,24 +20,18 @@ class _NotificationPageState extends State<NotificationPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.black,
-                  ),
+                  icon: const Icon(Icons.arrow_back, color: Colors.black),
                   onPressed: () {
                     Navigator.pop(context);
                   },
                 ),
                 ShaderMask(
                   shaderCallback: (bounds) => const LinearGradient(
-                    colors: [
-                      Color(0xFFB993D6),
-                      Color(0xFF8CA6DB),
-                    ],
+                    colors: [Color(0xFFB993D6), Color(0xFF8CA6DB)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ).createShader(bounds),
@@ -54,48 +44,71 @@ class _NotificationPageState extends State<NotificationPage> {
                     ),
                   ),
                 ),
+                const Spacer(),
+                if (notifications.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.delete_forever, color: Colors.red),
+                    tooltip: "Supprimer toutes",
+                    onPressed: () {
+                      setState(() {
+                        notifications.clear();
+                      });
+                    },
+                  ),
               ],
             ),
             const SizedBox(height: 30),
             Expanded(
-              child: ListView.builder(
-                itemCount: notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = notifications[index];
-                  final isRead = notification['isRead'];
-
-                  return Card(
-                    elevation: 3,
-                    margin:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                    color: isRead ? Colors.grey[200] : Colors.white,
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.notifications,
-                        color: isRead ? Colors.grey : Colors.blue,
-                      ),
-                      title: Text(
-                        notification['title'],
+              child: notifications.isEmpty
+                  ? Center(
+                      child: Text(
+                        "Pas de notifications",
                         style: TextStyle(
-                          fontWeight:
-                              isRead ? FontWeight.normal : FontWeight.bold,
-                          color: isRead ? Colors.grey : Colors.black,
+                          fontSize: 20,
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
-                      subtitle: Text(isRead ? 'Read' : 'Unread'),
-                      trailing: Icon(
-                        Icons.chevron_right,
-                        color: isRead ? Colors.grey : Colors.blue,
-                      ),
-                      onTap: () {
-                        setState(() {
-                          notifications[index]['isRead'] = true;
-                        });
+                    )
+                  : ListView.builder(
+                      itemCount: notifications.length,
+                      itemBuilder: (context, index) {
+                        final notification = notifications[index];
+                        final isRead = notification['isRead'];
+
+                        return Card(
+                          elevation: 3,
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 8),
+                          color: isRead ? Colors.grey[200] : Colors.white,
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.notifications,
+                              color: isRead ? Colors.grey : Colors.blue,
+                            ),
+                            title: Text(
+                              notification['title'],
+                              style: TextStyle(
+                                fontWeight: isRead
+                                    ? FontWeight.normal
+                                    : FontWeight.bold,
+                                color: isRead ? Colors.grey : Colors.black,
+                              ),
+                            ),
+                            subtitle: Text(isRead ? 'Read' : 'Unread'),
+                            trailing: Icon(
+                              Icons.chevron_right,
+                              color: isRead ? Colors.grey : Colors.blue,
+                            ),
+                            onTap: () {
+                              setState(() {
+                                notifications[index]['isRead'] = true;
+                              });
+                            },
+                          ),
+                        );
                       },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),

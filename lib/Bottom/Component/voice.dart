@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mediapro/Pages/Home/voix.dart';
 import 'package:mediapro/Pages/Voice/Voice.dart';
 
 class VoiceOverProfile extends StatelessWidget {
-  final String name;
-  final String photoUrl;
-  final String language;
-  final double rating;
+  final VoixModel voix;
 
   const VoiceOverProfile({
     Key? key,
-    required this.name,
-    required this.photoUrl,
-    required this.language,
-    required this.rating,
+    required this.voix,
   }) : super(key: key);
 
   @override
@@ -41,7 +36,8 @@ class VoiceOverProfile extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               image: DecorationImage(
-                image: AssetImage(photoUrl),
+                image: NetworkImage(
+                    'https://back-end-of-mediapro-1.onrender.com/uploads/voix/${voix.photoProfil}'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -51,7 +47,7 @@ class VoiceOverProfile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                name,
+                voix.nom.toString(), // Conversion explicite en String
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -59,7 +55,7 @@ class VoiceOverProfile extends StatelessWidget {
                 ),
               ),
               Text(
-                language,
+                voix.langue.toString(), // Conversion explicite en String
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.blue[600],
@@ -69,14 +65,15 @@ class VoiceOverProfile extends StatelessWidget {
             ],
           ),
           SizedBox(height: 6),
-          _buildRatingStars(rating),
+          _buildRatingStars(
+              voix.averageRating.toDouble()), // Conversion en double
           SizedBox(height: 10),
           ElevatedButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => VoiceDetailPage(),
+                  builder: (context) => VoiceDetailPage(voix: voix),
                 ),
               );
             },

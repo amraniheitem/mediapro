@@ -4,12 +4,14 @@ class MyTextField extends StatefulWidget {
   final TextInputType textInputType;
   final bool isPassword;
   final String hintText;
+  final TextEditingController controller; // Ajoutez ceci
 
   const MyTextField({
     Key? key,
     required this.textInputType,
     required this.isPassword,
     required this.hintText,
+    required this.controller, // Ajoutez ceci
   }) : super(key: key);
 
   @override
@@ -18,6 +20,7 @@ class MyTextField extends StatefulWidget {
 
 class _MyTextFieldState extends State<MyTextField> {
   final FocusNode _focusNode = FocusNode();
+
   @override
   void dispose() {
     _focusNode.dispose();
@@ -31,6 +34,7 @@ class _MyTextFieldState extends State<MyTextField> {
         FocusScope.of(context).unfocus();
       },
       child: TextField(
+        controller: widget.controller, // Utilisez le contrôleur ici
         focusNode: _focusNode,
         keyboardType: widget.textInputType,
         obscureText: widget.isPassword,

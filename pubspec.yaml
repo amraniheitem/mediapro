@@ -14,16 +14,27 @@ dependencies:
   image_picker: ^0.8.4+4
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.10+1
-  shared_preferences: ^2.0.15  # Vérifiez la dernière version sur pub.dev
+  shared_preferences: ^2.0.15
   video_player: ^2.6.0  
+  http: ^1.2.2
+  intl: ^0.18.1
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/icone/
     - assets/video/
+    - assets/images/9704465.jpg
+
+flutter_icons:   # 👈 DOIT ÊTRE AU MÊME NIVEAU QUE "flutter", PAS DEDANS
+  android: true
+  ios: true
+  image_path: "assets/icone/icone.png"
