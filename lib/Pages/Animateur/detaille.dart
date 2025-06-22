@@ -35,10 +35,7 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
     setState(() {
       _averageRating =
           (animateurData['averageRating'] as num?)?.toDouble() ?? 0.0;
-      print('average Body: ${_averageRating}');
-
       _totalRatings = (animateurData['ratings'] as List<dynamic>?)?.length ?? 0;
-      print('total Body: ${_totalRatings}');
     });
   }
 
@@ -66,20 +63,14 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
           )
           .timeout(Duration(seconds: 10));
 
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
-      // Handle both 200 and 201 status codes
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseBody = jsonDecode(response.body);
 
         if (responseBody['success'] == true) {
-          // Update local storage
           final prefs = await SharedPreferences.getInstance();
           await prefs.setInt(
               'user_${_userId}_rating_${widget.animateur['id']}', rating);
 
-          // Parse server response
           dynamic serverAverage = responseBody['averageRating'];
           double parsedAverage = _parseRating(serverAverage);
 
@@ -109,7 +100,6 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
     } on TimeoutException {
       _handleServerError('Timeout - Vérifiez votre connexion internet');
     } catch (e) {
-      print('Erreur complète: $e');
       _handleServerError('Erreur technique: ${e.runtimeType}');
     }
   }
@@ -120,8 +110,7 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
       if (value is num) return value.toDouble();
       return 0.0;
     } catch (e) {
-      print('Erreur de parsing: $e');
-      return _averageRating; // Garde l'ancienne valeur en cas d'erreur
+      return _averageRating;
     }
   }
 
@@ -206,7 +195,6 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
       _fetchRatings();
       if (_userId != null) {
         _loadSavedRating();
-        // Gardez la partie likes si nécessaire
         SharedPreferences.getInstance().then((prefs) {
           setState(() {
             _likes = prefs.getInt('animator_${widget.animateur['id']}_likes') ??
@@ -334,13 +322,6 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          "ID: ${widget.animateur['id']}",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
                         Text(
                           "${animateur['name']}",
                           style: TextStyle(
@@ -484,12 +465,10 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: // Pour un animateur
-                            ElevatedButton.icon(
+                        child: ElevatedButton(
                           onPressed: () async {
                             final prefs = await SharedPreferences.getInstance();
-                            final token =
-                                prefs.getString('jwtToken'); // Clé corrigée
+                            final token = prefs.getString('jwtToken');
 
                             if (token == null) {
                               await prefs.setString(
@@ -519,8 +498,7 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
                               );
                             }
                           },
-                          icon: const Icon(Icons.contact_mail),
-                          label: const Text('Contactez',
+                          child: const Text('Contactez',
                               style: TextStyle(fontSize: 18)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
@@ -535,12 +513,11 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
                       ),
                       SizedBox(width: 16.0),
                       Expanded(
-                        child: ElevatedButton.icon(
+                        child: ElevatedButton(
                           onPressed: isLoggedIn
                               ? (_hasLiked ? null : _updateLikeStatus)
                               : null,
-                          icon: Icon(Icons.favorite),
-                          label: Text("J'aime"),
+                          child: Text("J'aime"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _hasLiked
                                 ? Colors.grey
@@ -626,12 +603,15 @@ class _AnimateurDetailleState extends State<AnimateurDetaille> {
                         children: [
                           Padding(
                             padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              "La présentation de l'animateur ",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Text(
+                                "Présentation de ${animateur['name']}",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),

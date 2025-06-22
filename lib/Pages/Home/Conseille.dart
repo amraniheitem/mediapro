@@ -149,14 +149,6 @@ class Conseille extends StatelessWidget {
                                 fontSize: 25, fontWeight: FontWeight.w900),
                           ),
                           Spacer(),
-                          Text(
-                            'Voir toutes',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Color.fromARGB(255, 131, 22, 143),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 10),

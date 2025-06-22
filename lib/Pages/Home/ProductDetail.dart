@@ -4,8 +4,11 @@ import 'package:mediapro/Login/login.dart';
 import 'package:mediapro/Pages/Home/commandeProd.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
+
+final formatDA =
+    NumberFormat.currency(locale: 'fr_DZ', symbol: 'DA', decimalDigits: 0);
 
 class ProductDetailPage extends StatefulWidget {
   final String productId;
@@ -20,6 +23,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   Map<String, dynamic>? product;
   bool isLoading = true;
   String errorMessage = '';
+  bool isFavorite = false; // Ajout pour gérer le cœur
 
   @override
   void initState() {
@@ -150,26 +154,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         right: 10,
                         child: IconButton(
                           icon: Icon(
-                            Icons.favorite_border,
-                            color: const Color.fromARGB(255, 217, 0, 255),
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: Colors.purple,
                             size: 35,
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              isFavorite = !isFavorite;
+                            });
+                          },
                         ),
                       ),
                     ],
                   ),
                   SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Text(
-                      "ID: ${widget.productId}",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
@@ -186,7 +184,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           ),
                         ),
                         Text(
-                          '\$${product!['price']?.toString() ?? '0.00'}',
+                          formatDA.format(product!['price'] ?? 0),
                           style: TextStyle(
                             fontSize: 23.0,
                             color: Colors.blue,
@@ -201,11 +199,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.star,
-                          color: Colors.blue,
-                          size: 30.0,
-                        ),
+                        Icon(Icons.star, color: Colors.blue, size: 30.0),
                         SizedBox(width: 10),
                         Text(
                           '${product!['rating']?.toStringAsFixed(1) ?? '0.0'} (${product!['numReviews'] ?? 0} Évaluations)',
@@ -253,7 +247,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text(
-                      'Appelez nous dans ce numéro  ',
+                      'Appelez nous dans ce numéro',
                       style: TextStyle(
                         fontSize: 18.0,
                         fontWeight: FontWeight.bold,
@@ -265,7 +259,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE8EAF6), // Couleur de fond douce
+                        color: const Color(0xFFE8EAF6),
                         borderRadius: BorderRadius.circular(30.0),
                         boxShadow: [
                           BoxShadow(
@@ -297,11 +291,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               onPressed: () async {
                                 final prefs =
                                     await SharedPreferences.getInstance();
-                                final token =
-                                    prefs.getString('jwtToken'); // Clé corrigée
+                                final token = prefs.getString('jwtToken');
 
                                 if (token == null || token.isEmpty) {
-                                  // Si non connecté, sauvegarder l'action et rediriger vers login
                                   await prefs.setString(
                                       'pendingAction', 'order_product');
                                   await prefs.setString(
@@ -320,7 +312,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                     ),
                                   );
                                 } else {
-                                  // Si déjà connecté, passer directement à la commande
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -352,6 +343,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 30),
                 ],
               ),
             ),

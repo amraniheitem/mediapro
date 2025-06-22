@@ -38,45 +38,21 @@ class AnimateurCard extends StatelessWidget {
     }
   }
 
-  // Fonction pour formater le rating avec 2 décimales
   String formatRating(double value) {
     return '${value.toStringAsFixed(2)}/5';
   }
 
-  // Fonction pour diviser la wilaya si trop longue
+  // Nouvelle version : wilaya scroll horizontal
   Widget buildLocationText(String text) {
-    const maxChars = 10;
-    if (text.length <= maxChars) {
-      return Text(
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Text(
         text,
         style: TextStyle(
           fontSize: 18,
           color: Colors.white,
         ),
-      );
-    }
-
-    int splitIndex = text.indexOf(' ', (text.length / 2).round());
-    if (splitIndex == -1) splitIndex = maxChars;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          text.substring(0, splitIndex).trim(),
-          style: TextStyle(
-            fontSize: 18,
-            color: Colors.white,
-          ),
-        ),
-        Text(
-          text.substring(splitIndex).trim(),
-          style: TextStyle(
-            fontSize: 18,
-            color: Colors.white,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -90,7 +66,7 @@ class AnimateurCard extends StatelessWidget {
 
           return Container(
             width: 282,
-            height: 230, // Augmenté pour éviter l'overflow
+            height: 230,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/card.PNG'),
@@ -122,22 +98,24 @@ class AnimateurCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            name,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  blurRadius: 5.0,
-                                  color: Colors.black.withOpacity(0.5),
-                                  offset: Offset(0, 3),
-                                )
-                              ],
+                          // Scroll horizontal du nom
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Text(
+                              name,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                shadows: [
+                                  Shadow(
+                                    blurRadius: 5.0,
+                                    color: Colors.black.withOpacity(0.5),
+                                    offset: Offset(0, 3),
+                                  )
+                                ],
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                           SizedBox(height: 5),
                           Row(

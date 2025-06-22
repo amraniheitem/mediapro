@@ -55,7 +55,7 @@ class _AnimateurVipPageState extends State<AnimateurVipPage> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: SizedBox(
-              width: 230,
+              width: 200,
               child: UserProfile(
                 name: "${animateur['prenom']} ${animateur['nom']}",
                 events: animateur['event'] ?? 0,

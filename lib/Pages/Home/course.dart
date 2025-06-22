@@ -6,6 +6,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import './commande2.dart';
 import 'package:mediapro/Login/login.dart';
+import 'package:intl/intl.dart';
+
+final formatDA =
+    NumberFormat.currency(locale: 'fr_DZ', symbol: 'DA', decimalDigits: 0);
 
 class Course extends StatefulWidget {
   final String courseId;
@@ -318,7 +322,9 @@ class _CourseState extends State<Course> {
                     ),
                     const SizedBox(width: 70),
                     Text(
-                      '\$${courseDetails!['price'] ?? '0'}',
+                      formatDA.format(
+                          num.tryParse(courseDetails!['price'].toString()) ??
+                              0),
                       style: TextStyle(
                         fontSize: 23.0,
                         color: const Color.fromARGB(255, 110, 56, 203),
